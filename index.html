@@ -697,13 +697,69 @@ async function doSearch(){
   const res = document.getElementById('search-results');
   res.innerHTML = '<div class="spinner"></div><div class="loading-txt">検索中...</div>';
   try {
-    const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=12&langRestrict=ja`;
-    const r = await fetch(url);
-    const data = await r.json();
-    renderSearchResults(data.items||[]);
+    const [gbItems, ndlItems] = await Promise.allSettled([
+      searchGoogleBooks(q),
+      searchNDL(q)
+    ]);
+    const gb = gbItems.status==='fulfilled' ? gbItems.value : [];
+    const ndl = ndlItems.status==='fulfilled' ? ndlItems.value : [];
+    const merged = mergeResults(gb, ndl);
+    renderSearchResults(merged);
   } catch(e) {
     res.innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><p>検索に失敗しました</p></div>`;
   }
+}
+
+async function searchGoogleBooks(q){
+  const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=40&country=JP&printType=books`;
+  const r = await fetch(url);
+  const data = await r.json();
+  return data.items||[];
+}
+
+async function searchNDL(q){
+  const url = `https://iss.ndl.go.jp/api/opensearch?any=${encodeURIComponent(q)}&mediatype=1&cnt=20`;
+  const r = await fetch(url);
+  const text = await r.text();
+  const xml = new DOMParser().parseFromString(text, 'text/xml');
+  const items = Array.from(xml.querySelectorAll('item'));
+  return items.map(item => {
+    const get = tag => item.querySelector(tag)?.textContent?.trim()||'';
+    const isbns = Array.from(item.querySelectorAll('identifier'))
+      .map(el=>el.textContent.trim())
+      .filter(s=>s.replace(/-/g,'').match(/^97[89]\d{10}$/));
+    const isbn = isbns[0]?.replace(/-/g,'')||'';
+    return {
+      _source: 'ndl',
+      volumeInfo: {
+        title: get('title').replace(/\s*\/.*$/,'').trim(),
+        authors: get('author') ? [get('author')] : [],
+        industryIdentifiers: isbn ? [{type:'ISBN_13', identifier:isbn}] : [],
+        imageLinks: isbn ? { thumbnail: `https://cover.openbd.jp/${isbn}.jpg` } : {}
+      },
+      saleInfo: {}
+    };
+  }).filter(x=>x.volumeInfo.title);
+}
+
+function mergeResults(gb, ndl){
+  // Google Books を優先。NDLはISBNで重複排除して追加
+  const gbIsbns = new Set(gb.map(x=>{
+    const ids = x.volumeInfo?.industryIdentifiers||[];
+    return (ids.find(i=>i.type==='ISBN_13')||ids[0])?.identifier||'';
+  }).filter(Boolean));
+
+  const gbTitles = new Set(gb.map(x=>(x.volumeInfo?.title||'').slice(0,10)));
+
+  const ndlUniq = ndl.filter(x=>{
+    const isbn = x.volumeInfo?.industryIdentifiers?.[0]?.identifier||'';
+    const title = (x.volumeInfo?.title||'').slice(0,10);
+    if(isbn && gbIsbns.has(isbn)) return false;
+    if(gbTitles.has(title)) return false;
+    return true;
+  });
+
+  return [...gb, ...ndlUniq].slice(0,40);
 }
 
 async function fetchOpenBDPrice(isbn){
@@ -724,11 +780,39 @@ async function fetchOpenBDPrice(isbn){
 
 async function searchByISBN(isbn){
   try {
-    const url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`;
-    const r = await fetch(url);
-    const data = await r.json();
-    return (data.items||[])[0]||null;
-  } catch(e) { return null }
+    const [gbRes, obRes] = await Promise.allSettled([
+      fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&country=JP`).then(r=>r.json()),
+      fetch(`https://api.openbd.jp/v1/get?isbn=${isbn}`).then(r=>r.json())
+    ]);
+    const gbItem = gbRes.status==='fulfilled' ? (gbRes.value.items||[])[0]||null : null;
+    const obData = obRes.status==='fulfilled' ? obRes.value?.[0] : null;
+    if(!gbItem && !obData) return null;
+    // OpenBDで価格・表紙を補完
+    if(gbItem && obData){
+      const obPrice = parseInt(obData.summary?.price||obData.onix?.ProductSupply?.SupplyDetail?.Price?.[0]?.PriceAmount||0);
+      if(obPrice && !gbItem.saleInfo?.listPrice) {
+        gbItem.saleInfo = gbItem.saleInfo||{};
+        gbItem.saleInfo.listPrice = { amount: obPrice };
+      }
+      if(!gbItem.volumeInfo?.imageLinks?.thumbnail && obData.summary?.cover){
+        gbItem.volumeInfo.imageLinks = { thumbnail: obData.summary.cover };
+      }
+      return gbItem;
+    }
+    if(gbItem) return gbItem;
+    // Google Booksになければ OpenBDから組み立て
+    const s = obData.summary||{};
+    return {
+      _source:'openbd',
+      volumeInfo:{
+        title: s.title||'不明',
+        authors: s.author ? [s.author] : [],
+        industryIdentifiers:[{type:'ISBN_13',identifier:isbn}],
+        imageLinks: s.cover ? {thumbnail:s.cover} : {}
+      },
+      saleInfo:{ listPrice:{ amount: parseInt(s.price)||0 } }
+    };
+  } catch(e){ return null }
 }
 
 function renderSearchResults(items){

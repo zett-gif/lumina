@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Lumina</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#3A4A30">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Lumina">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -21,6 +27,19 @@
   --cat-biz:#C4601A;--cat-phi:#2C4A6E;--cat-fic:#6B3A8A;--cat-oth:#7A7870;
   --st-want:#4A8C5C;--st-read:#3A6EA8;--st-done:#B87820;--st-tsun:#C04040;
 }
+/* DARK MODE */
+html.dark{
+  --bg:#1C1C1A;--surface:#262620;--surface2:#2E2E28;--sep:#3A3A34;
+  --primary:#8FAD7A;--primary-dim:rgba(143,173,122,.15);
+  --accent:#7A9068;
+  --t1:#EDE8DF;--t2:#9A9080;--t3:#5A5850;
+}
+html.dark .app-hdr{background:rgba(38,38,32,.95)}
+html.dark .app-nav{background:rgba(38,38,32,.95)}
+html.dark .modal-sheet{background:var(--surface)}
+html.dark .modal-ov{background:rgba(0,0,0,.6)}
+html.dark .bc-modal{background:#000}
+
 html,body{height:100%;background:var(--bg);font-family:'Noto Sans JP',-apple-system,sans-serif;color:var(--t1);font-size:14px;overflow:hidden}
 #app{display:flex;flex-direction:column;position:fixed;top:0;left:0;right:0;bottom:0;max-width:430px;margin:0 auto;background:var(--bg)}
 
@@ -157,11 +176,7 @@ html,body{height:100%;background:var(--bg);font-family:'Noto Sans JP',-apple-sys
 
 /* CATEGORY SELECTOR */
 .cat-sel{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.cat-opt{padding:8px 6px;border-radius:10px;border:2px solid var(--sep);background:var(--surface);cursor:pointer;text-align:center;font-size:11px;font-family:'Noto Sans JP',sans-serif;transition:all .2s;line-height:1.4}
-.cat-opt[data-v="business"].on{border-color:var(--cat-biz);color:var(--cat-biz);background:rgba(255,107,0,.08)}
-.cat-opt[data-v="philosophy"].on{border-color:var(--cat-phi);color:var(--cat-phi);background:rgba(27,58,107,.08)}
-.cat-opt[data-v="fiction"].on{border-color:var(--cat-fic);color:var(--cat-fic);background:rgba(107,31,179,.08)}
-.cat-opt[data-v="other"].on{border-color:var(--cat-oth);color:var(--cat-oth);background:rgba(142,142,147,.08)}
+.cat-opt{padding:8px 6px;border-radius:10px;border:2px solid var(--sep);background:var(--surface);cursor:pointer;text-align:center;font-size:11px;font-family:'Noto Sans JP',sans-serif;transition:all .2s;line-height:1.4;color:var(--t2)}
 
 /* RATING */
 .rating-row{display:flex;gap:4px;margin-top:2px}
@@ -208,6 +223,60 @@ html,body{height:100%;background:var(--bg);font-family:'Noto Sans JP',-apple-sys
 .legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
 .legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--t2)}
 .legend-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+
+/* FILTER TOGGLE */
+.filter-toggle{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:20px;border:1.5px solid var(--sep);background:var(--surface);color:var(--t2);font-size:12px;font-family:'Noto Sans JP',sans-serif;cursor:pointer;white-space:nowrap;transition:all .2s}
+.filter-toggle.active{background:var(--primary);color:#FAF7F2;border-color:var(--primary)}
+.filter-badge{color:#E86340;margin-left:1px;font-size:10px}
+.filter-chips-wrap{display:flex;flex-wrap:wrap;gap:6px}
+
+/* DATE PICKER */
+.picker-wrap{display:flex;gap:6px;align-items:center}
+.picker-col-wrap{flex:1;position:relative;height:22px;overflow:hidden;border-radius:20px;background:var(--surface);border:1px solid var(--sep)}
+.pkr-col{height:22px;overflow-y:scroll;scroll-snap-type:y mandatory;scrollbar-width:none}
+.pkr-col::-webkit-scrollbar{display:none}
+.pkr-pad{height:0;flex-shrink:0}
+.pkr-item{height:22px;display:flex;align-items:center;justify-content:center;scroll-snap-align:center;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity .1s,font-size .1s,font-weight .1s;user-select:none}
+.pkr-fade-t,.pkr-fade-b{display:none}
+.pkr-sel-line{display:none}
+.picker-sep{font-size:12px;color:var(--t2);padding:0 2px;flex-shrink:0;font-family:'Noto Sans JP',sans-serif}
+
+/* FAV AUTHORS */
+.fav-authors-row{display:flex;flex-wrap:wrap;gap:6px;min-height:28px;align-items:center;margin-bottom:4px}
+.fav-chip{display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:20px;background:var(--primary-dim);border:1px solid rgba(58,74,48,.2);cursor:pointer;font-size:12px;color:var(--primary);font-family:'Noto Sans JP',sans-serif;transition:all .2s}
+.fav-chip:active{transform:scale(.96)}
+.fav-chip-del{background:none;border:none;color:var(--t3);font-size:10px;cursor:pointer;padding:0 0 0 2px;line-height:1}
+
+/* MENU VIEW */
+.menu-card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--sep);overflow:hidden;margin-bottom:8px}
+.menu-row{display:flex;align-items:center;justify-content:space-between;padding:13px 16px}
+.menu-row+.menu-row{border-top:1px solid var(--sep)}
+.menu-row-left{display:flex;align-items:center;gap:10px}
+.menu-row-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.menu-row-label{font-size:14px;color:var(--t1)}
+.menu-row-sub{font-size:11px;color:var(--t3);margin-top:1px}
+
+/* TOGGLE SWITCH */
+.toggle-sw{position:relative;display:inline-block;width:44px;height:26px;cursor:pointer;flex-shrink:0}
+.toggle-sw input{opacity:0;width:0;height:0;position:absolute}
+.toggle-track{position:absolute;inset:0;background:#D1CBC0;border-radius:13px;transition:background .2s}
+.toggle-thumb{position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.2);transition:transform .2s}
+.toggle-sw input:checked ~ .toggle-track{background:var(--primary)}
+.toggle-sw input:checked ~ .toggle-track .toggle-thumb{transform:translateX(18px)}
+
+/* PASSCODE OVERLAY */
+.pin-overlay{position:fixed;inset:0;background:linear-gradient(160deg,#2C3A24,#1A2416);z-index:1000;display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px}
+.pin-overlay.open{display:flex}
+.pin-dots{display:flex;gap:18px;margin-bottom:44px}
+.pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.35);transition:all .15s}
+.pin-dot.filled{background:#fff;border-color:#fff}
+.pin-dot.error{background:#E84040;border-color:#E84040;animation:dotshake .35s ease}
+@keyframes dotshake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.pin-pad{display:grid;grid-template-columns:repeat(3,74px);gap:14px;justify-content:center}
+.pin-key{width:74px;height:74px;border-radius:50%;border:1.5px solid rgba(255,255,255,.15);background:rgba(255,255,255,.09);color:#fff;font-size:26px;font-family:'Inter',sans-serif;font-weight:400;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.pin-key:active{background:rgba(255,255,255,.25);transform:scale(.92)}
+.pin-key.empty{background:none;border:none;pointer-events:none;cursor:default}
+.pin-key.del{font-size:20px}
 </style>
 </head>
 <body>
@@ -225,16 +294,21 @@ html,body{height:100%;background:var(--bg);font-family:'Noto Sans JP',-apple-sys
 
     <!-- SHELF VIEW -->
     <section id="view-shelf" class="view active">
-      <div style="display:flex;gap:6px;margin-bottom:8px">
-        <button class="ssz-btn on" data-sz="4" title="4冊/段">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="0" y="0" width="7" height="7" rx="1.5"/><rect x="9" y="0" width="7" height="7" rx="1.5"/><rect x="0" y="9" width="7" height="7" rx="1.5"/><rect x="9" y="9" width="7" height="7" rx="1.5"/></svg>
-        </button>
-        <button class="ssz-btn" data-sz="6" title="6冊/段">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="0" y="0" width="4" height="7" rx="1"/><rect x="6" y="0" width="4" height="7" rx="1"/><rect x="12" y="0" width="4" height="7" rx="1"/><rect x="0" y="9" width="4" height="7" rx="1"/><rect x="6" y="9" width="4" height="7" rx="1"/><rect x="12" y="9" width="4" height="7" rx="1"/></svg>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="display:flex;gap:6px">
+          <button class="ssz-btn on" data-sz="4" title="4冊/段">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="0" y="0" width="7" height="7" rx="1.5"/><rect x="9" y="0" width="7" height="7" rx="1.5"/><rect x="0" y="9" width="7" height="7" rx="1.5"/><rect x="9" y="9" width="7" height="7" rx="1.5"/></svg>
+          </button>
+          <button class="ssz-btn" data-sz="6" title="6冊/段">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="0" y="0" width="4" height="7" rx="1"/><rect x="6" y="0" width="4" height="7" rx="1"/><rect x="12" y="0" width="4" height="7" rx="1"/><rect x="0" y="9" width="4" height="7" rx="1"/><rect x="6" y="9" width="4" height="7" rx="1"/><rect x="12" y="9" width="4" height="7" rx="1"/></svg>
+          </button>
+        </div>
+        <button class="filter-toggle" id="filter-open">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+          フィルター<span class="filter-badge" id="filter-badge" style="display:none">●</span>
         </button>
       </div>
       <div class="filter-row" id="sf-status"></div>
-      <div class="filter-row" id="sf-cat"></div>
       <div id="book-grid" class="book-grid"></div>
     </section>
 
@@ -255,6 +329,14 @@ html,body{height:100%;background:var(--bg);font-family:'Noto Sans JP',-apple-sys
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           手動で追加
         </button>
+      </div>
+      <div id="fav-sec" style="margin-bottom:16px">
+        <p class="sec-ttl" style="margin-top:0;margin-bottom:8px">お気に入り著者</p>
+        <div class="fav-authors-row" id="fav-authors"></div>
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <input class="form-input" id="fav-author-input" type="text" placeholder="著者名を追加..." style="flex:1;font-size:13px;padding:9px 12px">
+          <button class="act-btn pri" id="fav-author-add" style="padding:9px 16px;white-space:nowrap;font-size:13px">追加</button>
+        </div>
       </div>
       <div id="search-results"></div>
     </section>
@@ -284,14 +366,99 @@ html,body{height:100%;background:var(--bg);font-family:'Noto Sans JP',-apple-sys
         <div class="chart-wrap"><canvas id="chart-monthly"></canvas></div>
       </div>
 
-      <div class="chart-sec">
-        <h3>カテゴリ分布</h3>
-        <div class="chart-wrap" style="height:180px"><canvas id="chart-cat"></canvas></div>
-        <div class="legend" id="cat-legend"></div>
-      </div>
-
       <p class="sec-ttl">ステータス別一覧</p>
       <div class="amt-table" id="status-table"></div>
+    </section>
+
+    <!-- MENU VIEW -->
+    <section id="view-menu" class="view">
+      <p class="sec-ttl" style="margin-top:0">セキュリティ</p>
+      <div class="menu-card">
+        <div class="menu-row">
+          <div class="menu-row-left">
+            <div class="menu-row-icon" style="background:#5A5A6E">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <div>
+              <div class="menu-row-label">パスコードロック</div>
+              <div class="menu-row-sub">アプリ起動時にPINを要求</div>
+            </div>
+          </div>
+          <label class="toggle-sw">
+            <input type="checkbox" id="passcode-toggle">
+            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+          </label>
+        </div>
+      </div>
+
+      <p class="sec-ttl" style="margin-top:20px">フィードバック</p>
+      <div class="menu-card">
+        <div style="padding:14px">
+          <p style="font-size:12px;color:var(--t2);margin-bottom:10px">ご意見・ご要望をお聞かせください</p>
+          <textarea class="form-ta" id="feedback-text" placeholder="感想や改善してほしい点など..."></textarea>
+          <button class="btn-save" id="feedback-send" style="margin-top:10px">送信する</button>
+        </div>
+      </div>
+
+      <p class="sec-ttl" style="margin-top:20px">表示</p>
+      <div class="menu-card">
+        <div class="menu-row">
+          <div class="menu-row-left">
+            <div class="menu-row-icon" style="background:#3A3A50">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </div>
+            <span class="menu-row-label">ダークモード</span>
+          </div>
+          <label class="toggle-sw">
+            <input type="checkbox" id="dark-toggle">
+            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+          </label>
+        </div>
+      </div>
+
+      <p class="sec-ttl" style="margin-top:20px">データ</p>
+      <div class="menu-card">
+        <div class="menu-row" id="menu-export-row" style="cursor:pointer">
+          <div class="menu-row-left">
+            <div class="menu-row-icon" style="background:#2A6A4A">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </div>
+            <span class="menu-row-label">バックアップを書き出す</span>
+          </div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--t3)"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="menu-row" id="menu-import-row" style="cursor:pointer">
+          <div class="menu-row-left">
+            <div class="menu-row-icon" style="background:#2A4A6A">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </div>
+            <span class="menu-row-label">バックアップから復元</span>
+          </div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--t3)"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <input type="file" id="import-file" accept=".json" style="display:none">
+        <div class="menu-row" id="menu-delete-row" style="cursor:pointer">
+          <div class="menu-row-left">
+            <div class="menu-row-icon" style="background:#8A3030">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            </div>
+            <span class="menu-row-label" style="color:#C04040">データを全削除</span>
+          </div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--t3)"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>
+
+      <p class="sec-ttl" style="margin-top:20px">アプリ情報</p>
+      <div class="menu-card">
+        <div class="menu-row">
+          <span class="menu-row-label">バージョン</span>
+          <span style="font-size:13px;color:var(--t3);font-family:'Inter',sans-serif">1.0.0</span>
+        </div>
+        <div class="menu-row">
+          <span class="menu-row-label">登録冊数</span>
+          <span style="font-size:13px;color:var(--t2);font-family:'Inter',sans-serif" id="menu-book-count">0冊</span>
+        </div>
+      </div>
     </section>
 
   </main>
@@ -309,6 +476,10 @@ html,body{height:100%;background:var(--bg);font-family:'Noto Sans JP',-apple-sys
     <button class="nav-btn" data-view="stats">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
       統計
+    </button>
+    <button class="nav-btn" data-view="menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      メニュー
     </button>
   </nav>
 </div>
@@ -337,12 +508,7 @@ html,body{height:100%;background:var(--bg);font-family:'Noto Sans JP',-apple-sys
       <button class="st-opt" data-v="read">Done</button>
     </div>
     <p class="sec-ttl" style="margin-top:14px">カテゴリ</p>
-    <div class="cat-sel">
-      <button class="cat-opt" data-v="business">Business</button>
-      <button class="cat-opt" data-v="philosophy">Philosophy</button>
-      <button class="cat-opt" data-v="fiction">Fiction</button>
-      <button class="cat-opt" data-v="other">Other</button>
-    </div>
+    <div class="cat-sel" id="d-cat-sel"></div>
     <p class="sec-ttl" style="margin-top:14px">評価</p>
     <div class="rating-row" id="detail-rating"></div>
     <p class="sec-ttl" style="margin-top:14px">感想・メモ</p>
@@ -385,12 +551,7 @@ html,body{height:100%;background:var(--bg);font-family:'Noto Sans JP',-apple-sys
       <button class="st-opt" data-v="read">Done</button>
     </div>
     <p class="sec-ttl" style="margin-top:14px">カテゴリ</p>
-    <div class="cat-sel" id="m-cat-sel">
-      <button class="cat-opt on" data-v="business">Business</button>
-      <button class="cat-opt" data-v="philosophy">Philosophy</button>
-      <button class="cat-opt" data-v="fiction">Fiction</button>
-      <button class="cat-opt" data-v="other">Other</button>
-    </div>
+    <div class="cat-sel" id="m-cat-sel"></div>
     <button class="btn-save" id="manual-save">追加する</button>
   </div>
 </div>
@@ -422,12 +583,7 @@ html,body{height:100%;background:var(--bg);font-family:'Noto Sans JP',-apple-sys
       <button class="st-opt" data-v="read">Done</button>
     </div>
     <p class="sec-ttl" style="margin-top:14px">カテゴリ</p>
-    <div class="cat-sel" id="c-cat-sel">
-      <button class="cat-opt on" data-v="business">Business</button>
-      <button class="cat-opt" data-v="philosophy">Philosophy</button>
-      <button class="cat-opt" data-v="fiction">Fiction</button>
-      <button class="cat-opt" data-v="other">Other</button>
-    </div>
+    <div class="cat-sel" id="c-cat-sel"></div>
     <button class="btn-save" id="confirm-add">本棚に追加する</button>
   </div>
 </div>
@@ -445,16 +601,81 @@ html,body{height:100%;background:var(--bg);font-family:'Noto Sans JP',-apple-sys
   <p class="bc-status" id="bc-status"></p>
 </div>
 
+<!-- FILTER MODAL -->
+<div class="modal-ov" id="modal-filter">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-hdr">
+      <span class="modal-hdr-title">絞り込み</span>
+      <button class="modal-close" id="filter-close">✕</button>
+    </div>
+    <p class="sec-ttl" style="margin-top:0">価格帯</p>
+    <div class="filter-chips-wrap" id="fp-price"></div>
+    <p class="sec-ttl" style="margin-top:16px">登録月</p>
+    <div class="picker-wrap" id="fp-month-picker">
+      <div class="picker-col-wrap">
+        <div class="pkr-col" id="pkr-year"></div>
+        <div class="pkr-fade-t"></div><div class="pkr-fade-b"></div>
+        <div class="pkr-sel-line"></div>
+      </div>
+      <div class="picker-sep">年</div>
+      <div class="picker-col-wrap" style="flex:0.5">
+        <div class="pkr-col" id="pkr-month-col"></div>
+        <div class="pkr-fade-t"></div><div class="pkr-fade-b"></div>
+        <div class="pkr-sel-line"></div>
+      </div>
+      <div class="picker-sep">月</div>
+    </div>
+    <p class="sec-ttl" style="margin-top:16px">ジャンル</p>
+    <div class="filter-chips-wrap" id="fp-genre"></div>
+    <button class="btn-save" id="filter-apply" style="margin-top:20px">適用する</button>
+    <button class="btn-del" id="filter-reset" style="margin-top:6px">リセット</button>
+  </div>
+</div>
+
+<!-- PASSCODE OVERLAY -->
+<div class="pin-overlay" id="pin-overlay">
+  <div style="font-family:'Inter',sans-serif;font-size:26px;font-weight:800;color:#fff;letter-spacing:-.5px;margin-bottom:6px">Lumina</div>
+  <div style="font-size:13px;color:rgba(255,255,255,.55);margin-bottom:36px" id="pin-label">パスコードを入力</div>
+  <div class="pin-dots">
+    <span class="pin-dot" id="pd0"></span>
+    <span class="pin-dot" id="pd1"></span>
+    <span class="pin-dot" id="pd2"></span>
+    <span class="pin-dot" id="pd3"></span>
+  </div>
+  <div class="pin-pad">
+    <button class="pin-key" data-k="1">1</button>
+    <button class="pin-key" data-k="2">2</button>
+    <button class="pin-key" data-k="3">3</button>
+    <button class="pin-key" data-k="4">4</button>
+    <button class="pin-key" data-k="5">5</button>
+    <button class="pin-key" data-k="6">6</button>
+    <button class="pin-key" data-k="7">7</button>
+    <button class="pin-key" data-k="8">8</button>
+    <button class="pin-key" data-k="9">9</button>
+    <button class="pin-key empty" disabled></button>
+    <button class="pin-key" data-k="0">0</button>
+    <button class="pin-key del" data-k="del">⌫</button>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
 // ===================== CONFIG =====================
 const CAT = {
-  business:   { label:'Business', short:'Business', color:'#C4601A' },
-  philosophy: { label:'Philosophy', short:'Philosophy', color:'#2C4A6E' },
-  fiction:    { label:'Fiction',   short:'Fiction',   color:'#6B3A8A' },
-  other:      { label:'Other',     short:'Other',     color:'#7A7870' }
+  business:   { label:'ビジネス・経営',     color:'#C4601A' },
+  selfhelp:   { label:'自己啓発',          color:'#E07820' },
+  philosophy: { label:'哲学・思想',        color:'#2C4A6E' },
+  fiction:    { label:'小説・フィクション', color:'#6B3A8A' },
+  history:    { label:'歴史・文化',        color:'#8B4513' },
+  science:    { label:'科学・テクノロジー', color:'#1A6B5A' },
+  psychology: { label:'心理学',           color:'#7A3A8A' },
+  health:     { label:'健康・医療',        color:'#2A7A4A' },
+  hobby:      { label:'趣味・実用',        color:'#5A6E2C' },
+  sports:     { label:'スポーツ',          color:'#4A8A2A' },
+  other:      { label:'その他',           color:'#7A7870' }
 };
 const ST = {
   want:    { label:'Next',    color:'#4A8C5C' },
@@ -477,7 +698,10 @@ db.load();
 function uid(){ return Math.random().toString(36).slice(2)+Date.now().toString(36) }
 
 // ===================== STATE =====================
-let sfStatus = 'all', sfCat = 'all', shelfSize = 4;
+let sfStatus = 'all', sfGenre = 'all', sfPrice = 'all', sfMonth = 'all', shelfSize = 4;
+let tempPin = '', pinMode = 'unlock';
+let favAuthors = JSON.parse(localStorage.getItem('lumina-fav-authors')||'[]');
+let _pkrYear = String(new Date().getFullYear()), _pkrMonth = String(new Date().getMonth()+1).padStart(2,'0');
 let editingId = null;
 let pendingBook = null;
 let monthChart = null, catChart = null;
@@ -499,6 +723,7 @@ document.querySelectorAll('.nav-btn').forEach(btn=>{
     document.querySelectorAll('.view').forEach(s=>s.classList.remove('active'));
     document.getElementById('view-'+v).classList.add('active');
     if(v==='stats') renderStats();
+    if(v==='menu') renderMenuView();
   });
 });
 
@@ -512,17 +737,21 @@ function renderShelf(){
     c.addEventListener('click',()=>{ sfStatus=c.dataset.sfStatus; renderShelf() });
   });
 
-  // Category filters
-  const cats = [['all','All'],['business','Business'],['philosophy','Philosophy'],['fiction','Fiction'],['other','Other']];
-  const cfEl = document.getElementById('sf-cat');
-  cfEl.innerHTML = cats.map(([v,l])=>`<button class="chip${sfCat===v?' on':''}" data-sf-cat="${v}">${l}</button>`).join('');
-  cfEl.querySelectorAll('.chip').forEach(c=>{
-    c.addEventListener('click',()=>{ sfCat=c.dataset.sfCat; renderShelf() });
-  });
-
   let books = db.books;
   if(sfStatus!=='all') books = books.filter(b=>b.status===sfStatus);
-  if(sfCat!=='all') books = books.filter(b=>b.category===sfCat);
+  if(sfGenre!=='all') books = books.filter(b=>b.category===sfGenre);
+  if(sfPrice!=='all'){
+    const parts = sfPrice.split('-').map(Number);
+    const [mn,mx] = parts;
+    books = books.filter(b=>{ const p=b.price||0; return mx ? (p>=mn&&p<=mx) : p>=mn });
+  }
+  if(sfMonth!=='all'){
+    books = books.filter(b=>{
+      const d=b.addedDate||''; if(!d) return false;
+      const dd=new Date(d);
+      return `${dd.getFullYear()}-${String(dd.getMonth()+1).padStart(2,'0')}`===sfMonth;
+    });
+  }
 
   const grid = document.getElementById('book-grid');
   document.getElementById('hdr-count').textContent = db.books.length+'冊';
@@ -587,10 +816,7 @@ function openDetail(id){
   document.querySelectorAll('#modal-detail .st-opt').forEach(o=>{
     o.classList.toggle('on', o.dataset.v === (b.status||'want'));
   });
-  // Category selector
-  document.querySelectorAll('#modal-detail .cat-opt').forEach(o=>{
-    o.classList.toggle('on', o.dataset.v === (b.category||'other'));
-  });
+  renderCatSelector('d-cat-sel', b.category||'other');
   // Rating
   renderRating('detail-rating', b.rating||0, (r)=>{
     db.update(id, {rating:r});
@@ -622,17 +848,10 @@ document.querySelectorAll('#modal-detail .st-opt').forEach(o=>{
     o.classList.add('on');
   });
 });
-// Category change in detail
-document.querySelectorAll('#modal-detail .cat-opt').forEach(o=>{
-  o.addEventListener('click',()=>{
-    document.querySelectorAll('#modal-detail .cat-opt').forEach(x=>x.classList.remove('on'));
-    o.classList.add('on');
-  });
-});
 
 document.getElementById('detail-save').addEventListener('click',()=>{
   const status = document.querySelector('#modal-detail .st-opt.on')?.dataset.v || 'want';
-  const category = document.querySelector('#modal-detail .cat-opt.on')?.dataset.v || 'other';
+  const category = document.querySelector('#d-cat-sel .cat-opt.on')?.dataset.v || 'other';
   const memo = document.getElementById('detail-memo').value;
   const finishDate = document.getElementById('detail-date').value;
   db.update(editingId, { status, category, memo, finishDate });
@@ -656,7 +875,7 @@ document.getElementById('manual-btn').addEventListener('click',()=>{
   document.getElementById('m-price').value='';
   document.getElementById('m-cover').value='';
   resetSelectors('#m-status-sel','want');
-  resetSelectors('#m-cat-sel','business');
+  renderCatSelector('m-cat-sel','other');
   openModal('modal-manual');
 });
 document.getElementById('manual-close').addEventListener('click',()=>closeModal('modal-manual'));
@@ -664,9 +883,6 @@ document.getElementById('modal-manual').addEventListener('click',e=>{ if(e.targe
 
 document.querySelectorAll('#m-status-sel .st-opt').forEach(o=>{
   o.addEventListener('click',()=>{ document.querySelectorAll('#m-status-sel .st-opt').forEach(x=>x.classList.remove('on')); o.classList.add('on') });
-});
-document.querySelectorAll('#m-cat-sel .cat-opt').forEach(o=>{
-  o.addEventListener('click',()=>{ document.querySelectorAll('#m-cat-sel .cat-opt').forEach(x=>x.classList.remove('on')); o.classList.add('on') });
 });
 
 document.getElementById('manual-save').addEventListener('click',()=>{
@@ -678,7 +894,7 @@ document.getElementById('manual-save').addEventListener('click',()=>{
     price: parseInt(document.getElementById('m-price').value)||0,
     cover: document.getElementById('m-cover').value.trim(),
     status: document.querySelector('#m-status-sel .st-opt.on')?.dataset.v||'want',
-    category: document.querySelector('#m-cat-sel .cat-opt.on')?.dataset.v||'other',
+    category: document.querySelector('#m-cat-sel .cat-opt.on')?.dataset.v || 'other',
     memo:'', rating:0, addedDate: new Date().toISOString().slice(0,10), finishDate:''
   };
   db.add(book);
@@ -881,7 +1097,7 @@ async function openConfirmModal(item){
   }
 
   resetSelectors('#c-status-sel','want');
-  resetSelectors('#c-cat-sel','business');
+  renderCatSelector('c-cat-sel','other');
   openModal('modal-confirm');
 }
 
@@ -890,9 +1106,6 @@ document.getElementById('modal-confirm').addEventListener('click',e=>{ if(e.targ
 
 document.querySelectorAll('#c-status-sel .st-opt').forEach(o=>{
   o.addEventListener('click',()=>{ document.querySelectorAll('#c-status-sel .st-opt').forEach(x=>x.classList.remove('on')); o.classList.add('on') });
-});
-document.querySelectorAll('#c-cat-sel .cat-opt').forEach(o=>{
-  o.addEventListener('click',()=>{ document.querySelectorAll('#c-cat-sel .cat-opt').forEach(x=>x.classList.remove('on')); o.classList.add('on') });
 });
 
 document.getElementById('confirm-add').addEventListener('click',()=>{
@@ -1022,33 +1235,6 @@ function renderStats(){
     }
   });
 
-  // Category chart
-  const catCounts = Object.keys(CAT).map(k=>({ key:k, count:db.books.filter(b=>b.category===k).length }));
-  const total = catCounts.reduce((s,x)=>s+x.count,0);
-
-  if(catChart){ catChart.destroy(); catChart=null }
-  const cctx = document.getElementById('chart-cat').getContext('2d');
-  catChart = new Chart(cctx, {
-    type:'doughnut',
-    data:{
-      labels: catCounts.map(x=>CAT[x.key].label),
-      datasets:[{ data:catCounts.map(x=>x.count||0), backgroundColor:catCounts.map(x=>CAT[x.key].color), borderWidth:2, borderColor:'#fff' }]
-    },
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      cutout:'65%',
-      plugins:{
-        legend:{display:false},
-        tooltip:{ callbacks:{ label: ctx=>`${ctx.label}: ${ctx.parsed}冊 (${total?Math.round(ctx.parsed/total*100):0}%)` } }
-      }
-    }
-  });
-
-  document.getElementById('cat-legend').innerHTML = catCounts.map(x=>`
-    <div class="legend-item">
-      <div class="legend-dot" style="background:${CAT[x.key].color}"></div>
-      ${CAT[x.key].short}: ${x.count}冊
-    </div>`).join('');
 
   // Status table
   const tbl = document.getElementById('status-table');
@@ -1065,9 +1251,276 @@ function renderStats(){
   }).join('');
 }
 
+// ===================== FILTER MODAL =====================
+const PICKER_H = 22;
+function initPkrCol(colId, items, initVal, onSelect){
+  const col = document.getElementById(colId);
+  if(!col) return;
+  col.innerHTML = '<div class="pkr-pad"></div>' +
+    items.map(it=>`<div class="pkr-item" data-v="${it.v}">${it.l}</div>`).join('') +
+    '<div class="pkr-pad"></div>';
+  const idx = Math.max(0, items.findIndex(x=>x.v===initVal));
+  col.scrollTop = idx * PICKER_H;
+  function update(){
+    const si = Math.round(col.scrollTop / PICKER_H);
+    col.querySelectorAll('.pkr-item').forEach((el,i)=>{
+      const on = i===si;
+      el.style.opacity = on ? '1' : '0.25';
+      el.style.fontSize = on ? '13px' : '11px';
+      el.style.fontWeight = '400';
+      el.style.color = on ? 'var(--t1)' : 'var(--t3)';
+    });
+    if(items[si]) onSelect(items[si].v);
+  }
+  update();
+  let t;
+  col.addEventListener('scroll',()=>{
+    clearTimeout(t);
+    update();
+    t = setTimeout(()=>{
+      const si = Math.round(col.scrollTop / PICKER_H);
+      col.scrollTo({top: si*PICKER_H, behavior:'smooth'});
+      update();
+    }, 150);
+  });
+}
+
+function openFilterModal(){
+  const priceOpts=[{v:'all',l:'すべて'},{v:'0-1000',l:'〜¥1,000'},{v:'1001-2000',l:'¥1,001〜2,000'},{v:'2001-3000',l:'¥2,001〜3,000'},{v:'3001-9999999',l:'¥3,001〜'}];
+  document.getElementById('fp-price').innerHTML=priceOpts.map(o=>`<button class="chip${sfPrice===o.v?' on':''}" data-p="${o.v}">${o.l}</button>`).join('');
+  document.querySelectorAll('#fp-price .chip').forEach(c=>{
+    c.addEventListener('click',()=>{ document.querySelectorAll('#fp-price .chip').forEach(x=>x.classList.remove('on')); c.classList.add('on') });
+  });
+
+  // Year picker
+  const now = new Date();
+  const years = [];
+  for(let y=now.getFullYear(); y>=2020; y--) years.push({v:String(y), l:String(y)});
+  const initY = sfMonth!=='all' ? sfMonth.split('-')[0] : String(now.getFullYear());
+  initPkrCol('pkr-year', years, initY, v=>{ _pkrYear=v });
+
+  // Month picker
+  const months = Array.from({length:12},(_,i)=>({v:String(i+1).padStart(2,'0'), l:String(i+1)}));
+  const initM = sfMonth!=='all' ? sfMonth.split('-')[1] : String(now.getMonth()+1).padStart(2,'0');
+  initPkrCol('pkr-month-col', months, initM, v=>{ _pkrMonth=v });
+
+  const genreOpts=[{v:'all',l:'すべて'},...Object.entries(CAT).map(([k,v])=>({v:k,l:v.label}))];
+  document.getElementById('fp-genre').innerHTML=genreOpts.map(o=>`<button class="chip${sfGenre===o.v?' on':''}" data-g="${o.v}">${o.l}</button>`).join('');
+  document.querySelectorAll('#fp-genre .chip').forEach(c=>{
+    c.addEventListener('click',()=>{ document.querySelectorAll('#fp-genre .chip').forEach(x=>x.classList.remove('on')); c.classList.add('on') });
+  });
+
+  openModal('modal-filter');
+}
+
+function updateFilterBadge(){
+  const active=sfPrice!=='all'||sfMonth!=='all'||sfGenre!=='all';
+  document.getElementById('filter-badge').style.display=active?'':'none';
+  document.getElementById('filter-open').classList.toggle('active',active);
+}
+
+document.getElementById('filter-open').addEventListener('click',openFilterModal);
+document.getElementById('filter-close').addEventListener('click',()=>closeModal('modal-filter'));
+document.getElementById('modal-filter').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeModal('modal-filter') });
+document.getElementById('filter-apply').addEventListener('click',()=>{
+  sfPrice=document.querySelector('#fp-price .chip.on')?.dataset.p||'all';
+  sfMonth=_pkrYear+'-'+_pkrMonth;
+  sfGenre=document.querySelector('#fp-genre .chip.on')?.dataset.g||'all';
+  closeModal('modal-filter'); renderShelf(); updateFilterBadge();
+});
+document.getElementById('filter-reset').addEventListener('click',()=>{
+  sfPrice='all'; sfMonth='all'; sfGenre='all';
+  closeModal('modal-filter'); renderShelf(); updateFilterBadge();
+});
+
+// ===================== FAV AUTHORS =====================
+function saveFavAuthors(){ localStorage.setItem('lumina-fav-authors',JSON.stringify(favAuthors)) }
+
+function renderFavAuthors(){
+  const el=document.getElementById('fav-authors');
+  if(!favAuthors.length){
+    el.innerHTML=`<span style="font-size:12px;color:var(--t3)">著者名を追加してタップで検索</span>`;
+    return;
+  }
+  el.innerHTML=favAuthors.map((a,i)=>`<div class="fav-chip" data-i="${i}"><span>${esc(a)}</span><button class="fav-chip-del" data-i="${i}">✕</button></div>`).join('');
+  el.querySelectorAll('.fav-chip').forEach(c=>{
+    c.addEventListener('click',e=>{
+      if(e.target.classList.contains('fav-chip-del')) return;
+      document.getElementById('search-input').value=favAuthors[+c.dataset.i];
+      doSearch();
+    });
+  });
+  el.querySelectorAll('.fav-chip-del').forEach(btn=>{
+    btn.addEventListener('click',e=>{
+      e.stopPropagation();
+      favAuthors.splice(+btn.dataset.i,1);
+      saveFavAuthors(); renderFavAuthors();
+    });
+  });
+}
+
+document.getElementById('fav-author-add').addEventListener('click',()=>{
+  const val=document.getElementById('fav-author-input').value.trim();
+  if(!val) return;
+  if(favAuthors.includes(val)){ toast('すでに登録されています'); return; }
+  favAuthors.push(val); saveFavAuthors(); renderFavAuthors();
+  document.getElementById('fav-author-input').value='';
+  toast('著者を追加しました');
+});
+document.getElementById('fav-author-input').addEventListener('keydown',e=>{ if(e.key==='Enter') document.getElementById('fav-author-add').click() });
+renderFavAuthors();
+
+// ===================== PASSCODE =====================
+function isPasscodeEnabled(){ return localStorage.getItem('lumina-passcode-enabled')==='1' }
+function getPasscode(){ return localStorage.getItem('lumina-passcode')||'' }
+
+function updatePinDots(){
+  for(let i=0;i<4;i++){
+    document.getElementById('pd'+i).classList.toggle('filled',i<tempPin.length);
+    document.getElementById('pd'+i).classList.remove('error');
+  }
+}
+
+document.querySelectorAll('.pin-key').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const k=btn.dataset.k;
+    if(!k) return;
+    if(k==='del'){ tempPin=tempPin.slice(0,-1); updatePinDots(); return; }
+    if(tempPin.length>=4) return;
+    tempPin+=k; updatePinDots();
+    if(tempPin.length===4){
+      setTimeout(()=>{
+        if(pinMode==='unlock'){
+          if(tempPin===getPasscode()){
+            document.getElementById('pin-overlay').classList.remove('open');
+            tempPin=''; updatePinDots();
+          } else {
+            for(let i=0;i<4;i++) document.getElementById('pd'+i).classList.add('error');
+            setTimeout(()=>{ tempPin=''; updatePinDots() },500);
+          }
+        } else if(pinMode==='setup'){
+          localStorage.setItem('lumina-passcode',tempPin);
+          localStorage.setItem('lumina-passcode-enabled','1');
+          document.getElementById('pin-overlay').classList.remove('open');
+          tempPin=''; updatePinDots();
+          toast('パスコードを設定しました');
+          if(document.getElementById('passcode-toggle')) document.getElementById('passcode-toggle').checked=true;
+        }
+      },120);
+    }
+  });
+});
+
+if(isPasscodeEnabled()){
+  pinMode='unlock'; tempPin='';
+  document.getElementById('pin-label').textContent='パスコードを入力';
+  updatePinDots();
+  document.getElementById('pin-overlay').classList.add('open');
+}
+
+// ===================== MENU VIEW =====================
+function renderMenuView(){
+  document.getElementById('menu-book-count').textContent=db.books.length+'冊';
+  document.getElementById('passcode-toggle').checked=isPasscodeEnabled();
+  document.getElementById('dark-toggle').checked=document.documentElement.classList.contains('dark');
+}
+
+// DARK MODE
+function applyTheme(dark){
+  document.documentElement.classList.toggle('dark',dark);
+  localStorage.setItem('lumina-theme', dark?'dark':'light');
+}
+document.getElementById('dark-toggle').addEventListener('change',e=>applyTheme(e.target.checked));
+if(localStorage.getItem('lumina-theme')==='dark') applyTheme(true);
+
+// EXPORT
+document.getElementById('menu-export-row').addEventListener('click',()=>{
+  const data = JSON.stringify({v:1, books:db.books, exported: new Date().toISOString()}, null, 2);
+  const blob = new Blob([data],{type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download=`lumina-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.click(); URL.revokeObjectURL(url);
+  toast('バックアップを書き出しました');
+});
+
+// IMPORT
+document.getElementById('menu-import-row').addEventListener('click',()=>{
+  document.getElementById('import-file').click();
+});
+document.getElementById('import-file').addEventListener('change',e=>{
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev=>{
+    try {
+      const data = JSON.parse(ev.target.result);
+      if(!data.books||!Array.isArray(data.books)) throw new Error();
+      if(!confirm(`${data.books.length}冊のデータを復元します。現在のデータは上書きされます。よろしいですか？`)) return;
+      db.books = data.books; db.save(); renderShelf();
+      toast(`${data.books.length}冊を復元しました`);
+      renderMenuView();
+    } catch(err){ toast('ファイルが正しくありません'); }
+  };
+  reader.readAsText(file);
+  e.target.value='';
+});
+
+// DELETE ALL
+document.getElementById('menu-delete-row').addEventListener('click',()=>{
+  if(!confirm('すべての本データを削除します。この操作は取り消せません。')) return;
+  if(!confirm('本当に削除しますか？')) return;
+  db.books=[]; db.save(); renderShelf();
+  toast('データを削除しました');
+  renderMenuView();
+});
+
+document.getElementById('passcode-toggle').addEventListener('change',e=>{
+  if(e.target.checked){
+    pinMode='setup'; tempPin='';
+    document.getElementById('pin-label').textContent='パスコードを設定（4桁）';
+    updatePinDots();
+    document.getElementById('pin-overlay').classList.add('open');
+  } else {
+    localStorage.removeItem('lumina-passcode');
+    localStorage.removeItem('lumina-passcode-enabled');
+    toast('パスコードを無効にしました');
+  }
+});
+
+document.getElementById('feedback-send').addEventListener('click',()=>{
+  const text=document.getElementById('feedback-text').value.trim();
+  if(!text){ toast('内容を入力してください'); return; }
+  const mailto=`mailto:?subject=Lumina フィードバック&body=${encodeURIComponent(text)}`;
+  window.open(mailto);
+  document.getElementById('feedback-text').value='';
+  toast('フィードバックをありがとうございます！');
+});
+
 // ===================== MODAL UTILS =====================
 function openModal(id){ document.getElementById(id).classList.add('open'); document.body.style.overflow='hidden' }
 function closeModal(id){ document.getElementById(id).classList.remove('open'); document.body.style.overflow='' }
+
+function renderCatSelector(id, activeVal){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.innerHTML = Object.entries(CAT).map(([k,v])=>`<button class="cat-opt" data-v="${k}">${v.label}</button>`).join('');
+  el.querySelectorAll('.cat-opt').forEach(o=>{
+    if(o.dataset.v===activeVal) setCatOn(o);
+    o.addEventListener('click',()=>{
+      el.querySelectorAll('.cat-opt').forEach(x=>setCatOff(x));
+      setCatOn(o);
+    });
+  });
+}
+function setCatOn(o){
+  const c=CAT[o.dataset.v]; if(!c) return;
+  o.classList.add('on');
+  o.style.borderColor=c.color; o.style.color=c.color; o.style.background=c.color+'22';
+}
+function setCatOff(o){
+  o.classList.remove('on');
+  o.style.borderColor=''; o.style.color=''; o.style.background='';
+}
 
 function resetSelectors(sel, defaultVal){
   document.querySelectorAll(sel+' [data-v]').forEach(o=>{
@@ -1087,6 +1540,13 @@ document.querySelectorAll('.ssz-btn').forEach(btn=>{
 
 // ===================== INIT =====================
 renderShelf();
+
+// ===================== SERVICE WORKER =====================
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
 </script>
 </body>
 </html>

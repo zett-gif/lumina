@@ -48,7 +48,7 @@ d.rectangle([0, 0, 6, H], fill=(100, 140, 70))
 # Node positions
 nodes = [
     (220, 335, "Edit / Write", "#4E6B3E"),
-    (640, 335, "Hook 発火",    "#7A9A55"),
+    (640, 335, "Hook",         "#7A9A55"),
     (1060, 335, "自動実行",    "#9DBB6E"),
 ]
 node_w, node_h = 200, 70

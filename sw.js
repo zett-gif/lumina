@@ -1,8 +1,10 @@
-const CACHE_NAME = 'lumina-v1';
+const CACHE_NAME = 'lumina-v2';
 const ASSETS = [
   '/',
   '/index.html',
-  '/manifest.json'
+  '/manifest.json',
+  '/icons/icon-192.png',
+  '/icons/icon-512.png'
 ];
 
 self.addEventListener('install', e => {
@@ -22,7 +24,27 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
+  // APIリクエストはキャッシュしない
+  if (e.request.url.includes('googleapis') || e.request.url.includes('openbd') || e.request.url.includes('ndl.go.jp')) {
+    e.respondWith(fetch(e.request).catch(() => new Response('', { status: 503 })));
+    return;
+  }
+
   e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request))
+    caches.match(e.request).then(cached => {
+      if (cached) return cached;
+      return fetch(e.request).then(response => {
+        if (!response || response.status !== 200 || response.type !== 'basic') {
+          return response;
+        }
+        const cloned = response.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(e.request, cloned));
+        return response;
+      }).catch(() => {
+        if (e.request.destination === 'document') {
+          return caches.match('/index.html');
+        }
+      });
+    })
   );
 });

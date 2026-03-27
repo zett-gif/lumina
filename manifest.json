@@ -1,9 +1,11 @@
 {
   "name": "Lumina",
   "short_name": "Lumina",
+  "id": "/",
   "description": "あなたの読書をデザインする",
   "start_url": "/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
   "orientation": "portrait",
   "background_color": "#EDE8DF",
   "theme_color": "#3A4A30",

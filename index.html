@@ -916,6 +916,15 @@ async function doSearch(){
       searchGoogleBooks(q),
       searchNDL(q)
     ]);
+    if(gbItems.status==='rejected') console.error('Google Books検索エラー:', gbItems.reason);
+    if(ndlItems.status==='rejected') console.error('NDL検索エラー:', ndlItems.reason);
+
+    if(gbItems.status==='rejected' && ndlItems.status==='rejected'){
+      res.innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><h3>検索サービスに接続できません</h3><p>検索元（Google Books / 国立国会図書館）が混雑しているか、一時的に利用できません。<br>少し時間をおいて再度お試しいただくか、「手動で追加」をご利用ください。</p><button class="act-btn pri" id="search-retry" style="margin-top:12px">再検索</button></div>`;
+      document.getElementById('search-retry')?.addEventListener('click', doSearch);
+      return;
+    }
+
     const gb = gbItems.status==='fulfilled' ? gbItems.value : [];
     const ndl = ndlItems.status==='fulfilled' ? ndlItems.value : [];
     const merged = mergeResults(gb, ndl);
@@ -929,12 +938,14 @@ async function searchGoogleBooks(q){
   const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=40&country=JP&printType=books`;
   const r = await fetch(url);
   const data = await r.json();
+  if(!r.ok || data.error) throw new Error(`Google Books API error: ${r.status} ${data.error?.message||''}`);
   return data.items||[];
 }
 
 async function searchNDL(q){
   const url = `https://iss.ndl.go.jp/api/opensearch?any=${encodeURIComponent(q)}&mediatype=1&cnt=20`;
   const r = await fetch(url);
+  if(!r.ok) throw new Error(`NDL API error: ${r.status}`);
   const text = await r.text();
   const xml = new DOMParser().parseFromString(text, 'text/xml');
   const items = Array.from(xml.querySelectorAll('item'));
